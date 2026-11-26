@@ -1,0 +1,22 @@
+--- a/src/nemo-places-sidebar.c
++++ b/src/nemo-places-sidebar.c
+@@ -991,10 +991,18 @@
+         mount_uri = g_file_get_uri (root);
+         name = g_mount_get_name (mount);
+         tooltip = g_file_get_parse_name (root);
++        /* Native FUSE mounts have no GVolume, but can report filesystem capacity. */
++        full = get_disk_full (root, &tooltip_info);
++        if (full > -1) {
++            gchar *with_space = g_strdup_printf ("%s\n%s", tooltip, tooltip_info);
++            g_free (tooltip);
++            tooltip = with_space;
++        }
++        g_free (tooltip_info);
+         place_info = new_place_info (PLACES_MOUNTED_VOLUME,
+                                      SECTION_DEVICES,
+                                      name, icon, mount_uri,
+-                                     NULL, NULL, mount, 0, tooltip, 0, FALSE);
++                                     NULL, NULL, mount, 0, tooltip, full, full > -1);
+         place_infos = g_list_prepend (place_infos, place_info);
+ 
+         g_free (icon);
