@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>CloudMount · Cloud sign-in</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #173b4a; background: #eef3f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; }
+    header { background: #173b4a; color: white; padding: 24px max(24px, calc((100vw - 1040px) / 2)); }
+    .brand { font-size: 23px; font-weight: 700; letter-spacing: -.5px; }
+    header p { margin: 5px 0 0; color: #c9dfe6; font-size: 13px; }
+    main { width: min(680px, calc(100% - 40px)); margin: 72px auto 36px; padding: 40px; background: white; border: 1px solid #d2dfe5; border-radius: 8px; }
+    .mark { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #dceff0; color: #086d72; margin-bottom: 26px; }
+    .mark.error { background: #fff0dc; color: #744312; }
+    svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    h1 { font-size: clamp(27px, 4vw, 36px); line-height: 1.2; letter-spacing: -.7px; margin: 0 0 18px; }
+    p { font-size: 16px; line-height: 1.65; margin: 0 0 16px; color: #425a66; overflow-wrap: anywhere; }
+    .next { background: #edf4f6; border-radius: 5px; padding: 20px 22px; margin: 28px 0 22px; }
+    .next h2 { font-size: 16px; margin: 0 0 8px; }
+    .next p { font-size: 14px; margin: 0; }
+    .detail { font-size: 13px; color: #744312; }
+    .hint { font-size: 13px; margin: 0; }
+    footer { text-align: center; padding: 0 24px 30px; font-size: 12px; color: #506572; }
+    @media(max-width: 540px) { main { margin-top: 28px; padding: 28px 24px; } header { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <header><div class="brand">CloudMount</div><p>All your storage, at home on Linux.</p></header>
+  <main>
+    {{ if .OK }}
+    <div class="mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="m7 16 6 6L25 10"/></svg></div>
+    <h1>Return to CloudMount</h1>
+    <p>Your Cloud sign-in response has been received. CloudMount is finishing the connection check in the app.</p>
+    <section class="next"><h2>Your files are next</h2><p>Switch back to the CloudMount window. Once it shows connected, choose your folder and select <strong>Mount drive</strong>.</p></section>
+    <p class="hint">You can close this tab. Closing the browser does not close CloudMount or unmount your drive.</p>
+    {{ else }}
+    <div class="mark error" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 7v12m0 6v.1"/></svg></div>
+    <h1>Sign-in didn’t finish</h1>
+    <p>CloudMount couldn’t complete this authorization attempt. Your existing drive and cached files have been kept.</p>
+    <section class="next"><h2>Try again from the app</h2><p>Return to CloudMount and select <strong>Sign in with Google</strong>. If your provider blocked access, check that your account is an approved test user for the app’s OAuth project.</p></section>
+    <p class="detail">{{ .Name }}<br>{{ .Description }}</p>
+    <p class="hint">You can close this tab. No further action is needed here.</p>
+    {{ end }}
+  </main>
+  <footer>Cloud sign-in · CloudMount for Linux</footer>
+  <script>try { history.replaceState(null, '', location.pathname); } catch (_) {}</script>
+</body>
+</html>
