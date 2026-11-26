@@ -1,0 +1,74 @@
+.root { -fx-font-family: "DejaVu Sans"; -fx-font-size: 13px; -fx-base: #ffffff; -fx-background: #eef3f6; -fx-accent: #086d72; -fx-focus-color: #087e87; -fx-faint-focus-color: #087e8722; }
+.app { -fx-background-color: #eef3f6; }
+.header { -fx-padding: 22 32; -fx-background-color: #173b4a; }
+.brand { -fx-font-size: 23px; -fx-font-weight: bold; -fx-text-fill: white; }
+.tagline { -fx-text-fill: #c9dfe6; -fx-font-size: 12px; }
+.status-badge { -fx-background-color: #e1f0f1; -fx-text-fill: #173b4a; -fx-padding: 8 13; -fx-background-radius: 5; -fx-font-weight: bold; }
+.page-title { -fx-font-size: 27px; -fx-font-weight: bold; -fx-text-fill: #173b4a; }
+.muted { -fx-text-fill: #425a66; }
+.panel { -fx-padding: 22; -fx-background-color: white; -fx-border-color: #d2dfe5; -fx-border-radius: 6; -fx-background-radius: 6; }
+.section-title { -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #173b4a; -fx-padding: 0 0 3 0; }
+.section-small, .field-label { -fx-font-weight: bold; -fx-text-fill: #284652; -fx-font-size: 12px; }
+.help { -fx-font-size: 11px; -fx-text-fill: #506572; -fx-line-spacing: 2; }
+.empty-title { -fx-font-weight: bold; -fx-text-fill: #425a66; -fx-padding: 8 0 0 0; }
+.file-name { -fx-text-fill: #173b4a; -fx-font-weight: bold; }
+.metric-value { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #173b4a; }
+.notice { -fx-padding: 12 14; -fx-background-color: #dceff0; -fx-text-fill: #174f55; -fx-background-radius: 4; }
+.notice-error { -fx-background-color: #fff0dc; -fx-text-fill: #744312; }
+.text-field { -fx-padding: 9 10; -fx-background-color: #f9fbfc; -fx-border-color: #b7cbd5; -fx-border-radius: 4; -fx-background-radius: 4; -fx-text-fill: #173b4a; -fx-prompt-text-fill: #5b707c; }
+.text-field:focused { -fx-border-color: #087e87; -fx-background-color: white; }
+.button { -fx-padding: 9 14; -fx-cursor: hand; -fx-background-radius: 4; -fx-border-radius: 4; -fx-font-weight: bold; }
+.primary { -fx-background-color: #086d72; -fx-text-fill: white; }
+.primary:hover { -fx-background-color: #08585e; }
+.google-signin { -fx-background-color: white; -fx-text-fill: #1f1f1f; -fx-border-color: #747775; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 13 20; -fx-font-size: 14px; }
+.google-signin:hover { -fx-background-color: #edf3fa; }
+.google-signin:focused { -fx-border-color: #087e87; -fx-border-width: 2; }
+.titled-pane > .title { -fx-background-color: #edf4f6; -fx-padding: 10; }
+.titled-pane > .content { -fx-background-color: #f9fbfc; -fx-padding: 14; -fx-border-color: #d2dfe5; }
+.secondary { -fx-background-color: #edf4f6; -fx-border-color: #b7cbd5; -fx-text-fill: #244855; }
+.secondary:hover { -fx-background-color: #dcebf0; }
+.quiet { -fx-background-color: transparent; -fx-text-fill: #08656d; -fx-padding: 8 4; }
+.quiet:hover { -fx-background-color: #eaf4f5; }
+.button:focused { -fx-border-color: #087e87; -fx-border-width: 2; -fx-border-insets: -2; }
+.button:disabled { -fx-opacity: 0.5; -fx-cursor: default; }
+.hyperlink { -fx-text-fill: #08656d; -fx-padding: 3 0; }
+.text-area { -fx-font-family: "DejaVu Sans Mono"; -fx-font-size: 10px; -fx-text-fill: #365361; }
+.text-area .content { -fx-background-color: #f4f8fa; }
+.page-scroll, .page-scroll > .viewport { -fx-background-color: transparent; }
+.scroll-bar { -fx-background-color: #eef3f6; }
+.scroll-bar .thumb { -fx-background-color: #a9bfc9; -fx-background-radius: 5; }
+.progress-bar > .bar { -fx-background-color: #087e87; -fx-background-insets: 0; -fx-padding: 4; }
+.progress-bar > .track { -fx-background-color: #e1ecef; -fx-background-insets: 0; }
+.separator .line { -fx-border-color: #dce6eb; -fx-border-width: 1 0 0 0; }
+.footer { -fx-background-color: #e3edf1; -fx-text-fill: #435d6b; -fx-font-size: 11px; }
+
+.sidebar { -fx-background-color: #e3edf1; }
+.sidebar .list-view { -fx-background-color: transparent; -fx-border-width: 0; }
+.sidebar .list-cell { -fx-background-color: transparent; -fx-padding: 14 10; }
+.sidebar .list-cell:filled:selected { -fx-background-color: #c9e1e5; -fx-background-radius: 5; }
+.sidebar .list-cell:filled:hover { -fx-background-color: #d5e7ec; }
+
+/* Dropdowns are separate popup surfaces; keep sidebar transparency out of them. */
+.combo-box > .list-cell {
+    -fx-background-color: #f9fbfc;
+    -fx-text-fill: #173b4a;
+    -fx-padding: 9 10;
+}
+.combo-box-popup .list-view {
+    -fx-background-color: #ffffff;
+    -fx-background-insets: 0;
+    -fx-border-color: #b7cbd5;
+    -fx-border-width: 1;
+    -fx-padding: 2;
+}
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0;
+    -fx-text-fill: #173b4a;
+    -fx-padding: 10 12;
+}
+.combo-box-popup .list-view .list-cell:filled:hover,
+.combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: #086d72;
+    -fx-text-fill: #ffffff;
+}
