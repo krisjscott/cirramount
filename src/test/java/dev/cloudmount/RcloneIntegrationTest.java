@@ -41,7 +41,7 @@ class RcloneIntegrationTest {
             }
             assertNotNull(response); assertEquals(400, response.statusCode());
             assertTrue(response.body().contains("Sign-in didn’t finish"));
-            assertTrue(response.body().contains("CloudMount"));
+            assertTrue(response.body().contains("CirraMount"));
             assertTrue(response.body().contains("&lt;script&gt;synthetic&lt;/script&gt;"));
             assertFalse(response.body().contains("<script>synthetic</script>"));
             assertFalse(response.body().contains("All done. Please go back to rclone."));

@@ -2,7 +2,19 @@
 
 CirraMount provides Linux desktop cloud mounts built with Java 25, JavaFX and rclone/FUSE. Keep multiple connections mounted together: Google Drive, Amazon S3, S3-compatible storage, Microsoft OneDrive, Dropbox, WebDAV and SFTP.
 
-## Run
+## Install on Linux amd64
+
+Download `cirramount_0.2.0_amd64.deb` and its `.sha256` file from [GitHub Releases](https://github.com/krisjscott/cirramount/releases), then verify and install:
+
+```bash
+sha256sum -c cirramount_0.2.0_amd64.deb.sha256
+sudo apt install ./cirramount_0.2.0_amd64.deb
+cirramount
+```
+
+The package bundles Java 25, JavaFX and rclone. A desktop launcher is also installed. `apt` installs the declared Linux libraries and `fuse3` dependency.
+
+## Run from source
 
 ```bash
 cd /home/krisjscott/Documents/Program/Java/CirraMount
@@ -18,6 +30,8 @@ CLOUDMOUNT_JAVA_HOME=/usr/lib/jvm/jdk-25.0.2-oracle-x64 ./run.sh
 An `Unsupported major.minor version 67.0` error means an older Java runtime is loading JavaFX. IDE project SDK, run configuration and Maven runner must also use JDK 25+. Rebuild changes with `./build.sh`; Maven and internet access are needed for a clean build.
 
 The host needs `/dev/fuse` and `fusermount3` (the distribution's `fuse3` package on Debian/Ubuntu/Mint). Run CirraMount as your normal user.
+
+To build an amd64 Debian package from this checkout, run `scripts/package-deb.sh 0.2.0`. Set `CIRRAMOUNT_RUNTIME_DIR` to an existing Java 25 runtime to bundle that runtime; otherwise the script creates one with `jlink`. The package and checksum are written to `target/release/`.
 
 ## Add connections
 

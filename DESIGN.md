@@ -1,6 +1,6 @@
-# CloudMount interface
+# CirraMount interface
 
-CloudMount is a Linux desktop workspace for independently mounted cloud storage. The daily task is to see which connections are mounted, check transfer progress, and act on the selected connection. The interface is designed for a 1280 × 900 window and remains usable at 1000 × 680 with the detail area scrolling.
+CirraMount is a Linux desktop workspace for independently mounted cloud storage. The daily task is to see which connections are mounted, check transfer progress, and act on the selected connection. The interface is designed for a 1280 × 900 window and remains usable at 1000 × 680 with the detail area scrolling.
 
 ## Layout
 

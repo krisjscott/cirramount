@@ -126,7 +126,7 @@ class CoreTest {
                 if sys.argv[1]=='authorize':
                     assert '--template' in sys.argv
                     template = sys.argv[sys.argv.index('--template')+1]
-                    assert 'Return to CloudMount' in open(template).read()
+                    assert 'Return to CirraMount' in open(template).read()
                     assert os.environ['RCLONE_DRIVE_CLIENT_SECRET']=='test-secret'
                     assert 'test-secret' not in sys.argv
                     print('http://127.0.0.1:53682/auth?state=synthetic')

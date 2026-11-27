@@ -85,7 +85,7 @@ public final class AccountStore {
             deleteTree(privateCache);
         } else if (Files.exists(scoped.credentials())) {
             // A custom cache base may contain unrelated files. Only the UUID namespace
-            // created for this connection is owned by CloudMount.
+            // created for this connection is owned by CirraMount.
             String id = Files.readString(scoped.credentials()).lines()
                     .filter(line -> line.startsWith("cloudmount_cache_id = "))
                     .map(line -> line.substring("cloudmount_cache_id = ".length()).strip())

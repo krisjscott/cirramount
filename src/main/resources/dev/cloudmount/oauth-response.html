@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
-  <title>CloudMount · Cloud sign-in</title>
+  <title>CirraMount · Cloud sign-in</title>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #173b4a; background: #eef3f6; }
     * { box-sizing: border-box; }
@@ -29,24 +29,24 @@
   </style>
 </head>
 <body>
-  <header><div class="brand">CloudMount</div><p>All your storage, at home on Linux.</p></header>
+  <header><div class="brand">CirraMount</div><p>All your storage, at home on Linux.</p></header>
   <main>
     {{ if .OK }}
     <div class="mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="m7 16 6 6L25 10"/></svg></div>
-    <h1>Return to CloudMount</h1>
-    <p>Your Cloud sign-in response has been received. CloudMount is finishing the connection check in the app.</p>
-    <section class="next"><h2>Your files are next</h2><p>Switch back to the CloudMount window. Once it shows connected, choose your folder and select <strong>Mount drive</strong>.</p></section>
-    <p class="hint">You can close this tab. Closing the browser does not close CloudMount or unmount your drive.</p>
+    <h1>Return to CirraMount</h1>
+    <p>Your cloud sign-in response has been received. CirraMount is finishing the connection check in the app.</p>
+    <section class="next"><h2>Your files are next</h2><p>Switch back to the CirraMount window. Once it shows connected, choose your folder and select <strong>Mount</strong>.</p></section>
+    <p class="hint">You can close this tab. Closing the browser does not close CirraMount or unmount your drive.</p>
     {{ else }}
     <div class="mark error" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 7v12m0 6v.1"/></svg></div>
     <h1>Sign-in didn’t finish</h1>
-    <p>CloudMount couldn’t complete this authorization attempt. Your existing drive and cached files have been kept.</p>
-    <section class="next"><h2>Try again from the app</h2><p>Return to CloudMount and select <strong>Sign in with Google</strong>. If your provider blocked access, check that your account is an approved test user for the app’s OAuth project.</p></section>
+    <p>CirraMount couldn’t complete this authorization attempt. Your existing drive and cached files have been kept.</p>
+    <section class="next"><h2>Try again from the app</h2><p>Return to CirraMount and retry the connection. If your provider blocked access, check its authorization requirements.</p></section>
     <p class="detail">{{ .Name }}<br>{{ .Description }}</p>
     <p class="hint">You can close this tab. No further action is needed here.</p>
     {{ end }}
   </main>
-  <footer>Cloud sign-in · CloudMount for Linux</footer>
+  <footer>Cloud sign-in · CirraMount for Linux</footer>
   <script>try { history.replaceState(null, '', location.pathname); } catch (_) {}</script>
 </body>
 </html>

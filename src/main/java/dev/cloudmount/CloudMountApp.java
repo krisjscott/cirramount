@@ -123,13 +123,13 @@ public final class CloudMountApp extends Application {
             lock = null;
         }
         if (lock == null) {
-            new Alert(Alert.AlertType.INFORMATION, "CloudMount is already open.", ButtonType.OK).showAndWait();
+            new Alert(Alert.AlertType.INFORMATION, "CirraMount is already open.", ButtonType.OK).showAndWait();
             Platform.exit();
             return;
         }
         Scene scene = new Scene(shell(), 1280, 900);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/cloudmount/cloudmount.css")).toExternalForm());
-        stage.setTitle("CloudMount — Your cloud storage");
+        stage.setTitle("CirraMount — Your cloud storage");
         stage.setMinWidth(1000);
         stage.setMinHeight(680);
         stage.setScene(scene);
@@ -176,7 +176,7 @@ public final class CloudMountApp extends Application {
     }
 
     private Parent shell() {
-        VBox identity = new VBox(2, label("CloudMount", "brand"), label("Storage workspace", "tagline"));
+        VBox identity = new VBox(2, label("CirraMount", "brand"), label("Storage workspace", "tagline"));
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
         globalStatus.getStyleClass().add("status-badge");

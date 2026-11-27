@@ -133,7 +133,7 @@ public final class MountService {
             return false;
         }
         if (MountTable.mounted(target) && MountTable.owns(target, saved.deviceName()))
-            throw new IOException("Another filesystem now uses the saved mount folder. CloudMount will not control it.");
+            throw new IOException("Another filesystem now uses the saved mount folder. CirraMount will not control it.");
         session = saved;
         rc = new RcClient(saved.port(), saved.password());
         if (processMatches(saved) || saved.pid() == 0) {
@@ -159,7 +159,7 @@ public final class MountService {
         cache = cache.toRealPath();
         validatePaths(target, cache);
         if (MountTable.mounted(target))
-            throw new IOException("That folder is already mounted. If using the older CloudMount, unmount there before switching to background mode.");
+            throw new IOException("That folder is already mounted. If using an older app version, unmount there before switching to background mode.");
         try (var entries = Files.list(target)) {
             if (entries.findAny().isPresent())
                 throw new IOException("The mount folder must be empty; existing files will not be hidden.");
@@ -212,7 +212,7 @@ public final class MountService {
                 .orElseThrow(() -> new IOException("The background mount process is not running."));
         long started = process.info().startInstant().orElseThrow(() -> new IOException("Cannot verify the background process identity.")).toEpochMilli();
         if (session.processStartedAt() != 0 && session.processStartedAt() != started)
-            throw new IOException("The saved process ID has been reused. CloudMount will not stop it.");
+            throw new IOException("The saved process ID has been reused. CirraMount will not stop it.");
         MountSession resolved = session.withProcess(pid, started);
         if (!resolved.equals(session)) {
             session = resolved;

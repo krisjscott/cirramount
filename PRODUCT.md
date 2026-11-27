@@ -1,4 +1,4 @@
-# CloudMount
+# CirraMount
 
 Linux desktop app using Java 25, JavaFX, Maven and rclone/FUSE. One window manages multiple Google Drive, Amazon S3, S3-compatible, Microsoft OneDrive, Dropbox, WebDAV and SFTP connections.
 

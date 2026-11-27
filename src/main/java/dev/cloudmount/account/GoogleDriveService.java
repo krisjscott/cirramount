@@ -64,7 +64,7 @@ public final class GoogleDriveService {
         Path responseTemplate = paths.configDir().resolve("oauth-response.html");
         try (var resource = GoogleDriveService.class.getResourceAsStream("/dev/cloudmount/oauth-response.html")) {
             if (resource == null)
-                throw new IOException("The Google sign-in page is missing. Rebuild CloudMount and retry.");
+                throw new IOException("The Google sign-in page is missing. Rebuild CirraMount and retry.");
             PrivateFiles.write(responseTemplate, new String(resource.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
         }
         // Backend environment options are consumed by rclone's ConfigMap; secrets never enter argv.

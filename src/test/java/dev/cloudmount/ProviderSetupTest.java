@@ -66,7 +66,7 @@ class ProviderSetupTest {
             try{
                 var request=java.net.http.HttpRequest.newBuilder(URI.create("http://127.0.0.1:53682/?error=access_denied&error_description=synthetic-denial")).timeout(java.time.Duration.ofSeconds(3)).GET().build();
                 var response=java.net.http.HttpClient.newHttpClient().send(request,java.net.http.HttpResponse.BodyHandlers.ofString());
-                assertEquals(400,response.statusCode());assertTrue(response.body().contains("CloudMount"));
+                assertEquals(400,response.statusCode());assertTrue(response.body().contains("CirraMount"));
             }catch(Exception e){throw new RuntimeException(e);}
         }));
         assertTrue(opened.get(),"Browser consent URL must be surfaced from the RC configuration state machine");

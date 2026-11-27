@@ -33,7 +33,7 @@ cloudmount_select_java() {
     export CLOUDMOUNT_JAVA
     return 0
   done
-  printf '%s\n' 'CloudMount requires JDK 25 or newer (the app is compiled for Java 25).' >&2
+  printf '%s\n' 'CirraMount requires JDK 25 or newer (the app is compiled for Java 25).' >&2
   if [[ -n "${CLOUDMOUNT_JAVA_HOME:-}" ]]; then
     printf 'CLOUDMOUNT_JAVA_HOME does not point to a compatible JDK: %s\n' "$CLOUDMOUNT_JAVA_HOME" >&2
   else
