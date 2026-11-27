@@ -71,4 +71,50 @@ public final class AccountStore {
         Files.deleteIfExists(paths(a).credentials());
         Files.deleteIfExists(descriptor(a));
     }
+
+    /** Removes this profile and its identifiable local data. Provider files are never touched. */
+    public synchronized void removeWithLocalData(CloudAccount a) throws IOException {
+        AppPaths scoped = paths(a);
+        if (Files.exists(scoped.stateDir().resolve("mount-session.json")))
+            throw new IOException("Unmount this connection before deleting its local data.");
+
+        MountSettings settings = new SettingsStore(scoped).load();
+        Path chosenCache = Path.of(settings.cachePath()).toAbsolutePath().normalize();
+        Path privateCache = scoped.cacheDir().toAbsolutePath().normalize();
+        if (chosenCache.equals(privateCache) && !a.id().equals("legacy")) {
+            deleteTree(privateCache);
+        } else if (Files.exists(scoped.credentials())) {
+            // A custom cache base may contain unrelated files. Only the UUID namespace
+            // created for this connection is owned by CloudMount.
+            String id = Files.readString(scoped.credentials()).lines()
+                    .filter(line -> line.startsWith("cloudmount_cache_id = "))
+                    .map(line -> line.substring("cloudmount_cache_id = ".length()).strip())
+                    .findFirst().orElse("");
+            try {
+                UUID.fromString(id);
+                deleteTree(chosenCache.resolve(id));
+            } catch (IllegalArgumentException ignored) {
+                // Older credentials have no trustworthy cache namespace.
+            }
+        }
+
+        if (a.id().equals("legacy")) {
+            PrivateFiles.write(root.configDir().resolve("legacy-removed"), "removed\n");
+            Files.deleteIfExists(scoped.credentials());
+            Files.deleteIfExists(scoped.settings());
+            Files.deleteIfExists(scoped.stateDir().resolve("rclone.log"));
+            Files.deleteIfExists(descriptor(a));
+        } else {
+            deleteTree(scoped.stateDir());
+            deleteTree(scoped.configDir());
+        }
+    }
+
+    private static void deleteTree(Path path) throws IOException {
+        if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) return;
+        try (var entries = Files.walk(path)) {
+            for (Path entry : entries.sorted(Comparator.reverseOrder()).toList())
+                Files.delete(entry);
+        }
+    }
 }

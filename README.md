@@ -84,6 +84,8 @@ Configuration directories use `0700`, files use `0600`, and replacement writes a
 
 **Remove connection** is available only while unmounted and removes its saved credentials/profile. Cloud files and local cache stay intact. Revoke provider authorization separately if needed. Failed/cancelled setup leaves previous credentials untouched; replacement happens only after a real directory read succeeds.
 
+**Delete local data** is available while unmounted. It removes the selected connection, credentials, settings, recovery state and its private cache. For a custom cache folder, it deletes only the current connection's UUID cache directory; unrelated files and older cache namespaces may remain. This can discard unuploaded local changes. Cloud provider files and the local mount folder are not deleted.
+
 ## Browser consent page
 
 All OAuth providers use the bundled CloudMount success/error response page through rclone's configuration template. It has no external assets, escapes provider error text, removes callback query parameters from browser history and sets a no-referrer policy. The response confirms receipt of the callback; the desktop app still finishes verification before offering the mount. Previously opened response tabs are not updated.

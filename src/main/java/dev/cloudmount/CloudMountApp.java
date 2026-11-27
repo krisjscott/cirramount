@@ -40,7 +40,7 @@ public final class CloudMountApp extends Application {
     private final ProviderSetup setup = new ProviderSetup();
     private final BooleanProperty busy = new SimpleBooleanProperty(false), configuring = new SimpleBooleanProperty(false), owned = new SimpleBooleanProperty(false), configured = new SimpleBooleanProperty(false);
     private final ListView<CloudAccount> accountList = new ListView<>();
-    private final VBox details = new VBox(18), rows = new VBox(12);
+    private final VBox details = new VBox(22), rows = new VBox(12);
     private final Label notice = new Label("Loading saved connections…"), globalStatus = new Label("Cloud storage for Linux"), state = new Label(), connectionState = new Label();
     private final Label speed = new Label("—"), transferred = new Label("—"), queued = new Label("—"), cacheUsed = new Label("—"), transferState = new Label(), storageLabel = new Label();
     private final ProgressBar storageBar = new ProgressBar(0);
@@ -99,6 +99,11 @@ public final class CloudMountApp extends Application {
         return b;
     }
 
+    private static void theme(Dialog<?> dialog) {
+        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(
+                CloudMountApp.class.getResource("/dev/cloudmount/cloudmount.css")).toExternalForm());
+    }
+
     private static VBox panel(String title, Node... nodes) {
         VBox v = new VBox(13);
         v.getStyleClass().add("panel");
@@ -125,7 +130,7 @@ public final class CloudMountApp extends Application {
         Scene scene = new Scene(shell(), 1280, 900);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/cloudmount/cloudmount.css")).toExternalForm());
         stage.setTitle("CloudMount — Your cloud storage");
-        stage.setMinWidth(1080);
+        stage.setMinWidth(1000);
         stage.setMinHeight(680);
         stage.setScene(scene);
         stage.setOnCloseRequest(e -> {
@@ -148,7 +153,8 @@ public final class CloudMountApp extends Application {
             accountList.getItems().setAll(list);
             if (!list.isEmpty()) accountList.getSelectionModel().selectFirst();
             else empty();
-            message("Ready. Add storage or select a connection.", false);
+            updateCount();
+            message(list.isEmpty() ? "Ready. Add storage to get started." : "Ready. Select a connection to manage it.", false);
         });
         timer.scheduleWithFixedDelay(this::poll, 2, 2, TimeUnit.SECONDS);
         String output = getParameters().getNamed().get("smoke-output");
@@ -170,7 +176,7 @@ public final class CloudMountApp extends Application {
     }
 
     private Parent shell() {
-        VBox identity = new VBox(4, label("CloudMount", "brand"), label("All your storage, at home on Linux.", "tagline"));
+        VBox identity = new VBox(2, label("CloudMount", "brand"), label("Storage workspace", "tagline"));
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
         globalStatus.getStyleClass().add("status-badge");
@@ -183,6 +189,7 @@ public final class CloudMountApp extends Application {
             updateCount();
         });
         accountList.disableProperty().bind(busy);
+        accountList.setMinHeight(0);
         accountList.setPlaceholder(label("No connections yet", "help"));
         accountList.setCellFactory(v -> new ListCell<>() {
             @Override
@@ -195,8 +202,15 @@ public final class CloudMountApp extends Application {
                     Label name = label(a.name(), "file-name");
                     name.setWrapText(true);
                     Label provider = label(a.provider().toString(), "help");
-                    Label status = label(statuses.getOrDefault(a.id(), Files.exists(accounts.paths(a).credentials()) ? "Ready to mount" : "Not connected"), "help");
-                    setGraphic(new VBox(5, name, provider, status));
+                    boolean mounted = mounts.service(a).ownsMount();
+                    boolean attention = "Needs attention".equals(statuses.get(a.id()));
+                    Region dot = new Region();
+                    dot.getStyleClass().addAll("connection-dot", mounted ? "dot-mounted" : attention ? "dot-warning" : "dot-idle");
+                    Label status = label(mounted ? "Mounted" : attention ? "Needs attention" : Files.exists(accounts.paths(a).credentials()) ? "Ready" : "Needs setup", "list-status");
+                    HBox statusRow = new HBox(7, dot, status);
+                    statusRow.setAlignment(Pos.CENTER_LEFT);
+                    VBox content = new VBox(4, name, provider, statusRow);
+                    setGraphic(content);
                     setText(null);
                 }
             }
@@ -209,37 +223,42 @@ public final class CloudMountApp extends Application {
         Button add = button("Add storage", "primary", this::add);
         add.setMaxWidth(Double.MAX_VALUE);
         add.disableProperty().bind(busy);
-        VBox sidebar = new VBox(14, label("Connections", "section-title"), accountList, add);
-        sidebar.setPadding(new Insets(24, 16, 24, 20));
-        sidebar.setPrefWidth(250);
-        sidebar.setMinWidth(220);
-        VBox.setVgrow(accountList, Priority.ALWAYS);
+        Label sidebarTitle = label("Your storage", "sidebar-title");
+        BorderPane sidebar = new BorderPane();
+        sidebar.setTop(sidebarTitle);
+        sidebar.setCenter(accountList);
+        sidebar.setBottom(add);
+        BorderPane.setMargin(accountList, new Insets(14, 0, 14, 0));
+        sidebar.setPadding(new Insets(26, 16, 22, 20));
+        sidebar.setPrefWidth(258);
+        sidebar.setMinWidth(224);
         sidebar.getStyleClass().add("sidebar");
         notice.setWrapText(true);
         notice.setMaxWidth(Double.MAX_VALUE);
         notice.getStyleClass().add("notice");
-        details.setPadding(new Insets(24));
+        details.setPadding(new Insets(26, 30, 34, 30));
         page = new ScrollPane(details);
         page.setFitToWidth(true);
         page.getStyleClass().add("page-scroll");
-        VBox main = new VBox(12, notice, page);
-        main.setPadding(new Insets(18, 18, 0, 0));
+        VBox main = new VBox(0, notice, page);
+        main.setPadding(new Insets(0));
         VBox.setVgrow(page, Priority.ALWAYS);
         HBox.setHgrow(main, Priority.ALWAYS);
-        HBox body = new HBox(12, sidebar, main);
+        HBox body = new HBox(0, sidebar, main);
         VBox.setVgrow(body, Priority.ALWAYS);
-        Label footer = label("Close the window to leave mounts running. Unmount stops only the selected connection.", "footer");
-        footer.setPadding(new Insets(12, 24, 12, 24));
-        footer.setMaxWidth(Double.MAX_VALUE);
-        VBox shell = new VBox(header, body, footer);
+        VBox shell = new VBox(header, body);
         shell.getStyleClass().add("app");
         return shell;
     }
 
     private void empty() {
         selected = null;
-        details.getChildren().setAll(label("Connect your cloud storage", "page-title"), wrap("Add an account, choose a local folder, and mount your files. Each connection has its own credentials, cache and background mount.", "muted"),
-                panel("Choose your provider", wrap("Google Drive · Amazon S3 · S3-compatible storage · OneDrive · Dropbox · WebDAV · SFTP", "muted"), wrap("You can add multiple accounts from the same provider and keep them mounted together.", "help"), button("Add storage", "primary", this::add)));
+        Label heading = label("Bring your storage together", "page-title");
+        Label intro = wrap("Connect a provider, choose a local folder, then mount it. Your files will appear beside your other Linux folders.", "muted");
+        Button start = button("Add your first storage", "primary", this::add);
+        VBox emptyState = new VBox(18, heading, intro, start);
+        emptyState.getStyleClass().add("empty-state");
+        details.getChildren().setAll(emptyState, wrap("Google Drive · Amazon S3 · S3-compatible storage · OneDrive · Dropbox · WebDAV · SFTP", "help"));
     }
 
     private void show(CloudAccount a) {
@@ -250,10 +269,13 @@ public final class CloudMountApp extends Application {
             if (s == null) s = new SettingsStore(paths).load();
             owned.set(service.ownsMount());
             configured.set(Files.exists(paths.credentials()));
-            state.setText(statuses.getOrDefault(a.id(), owned.get() ? "Mounted in background" : "Not mounted"));
-            state.getStyleClass().setAll("status-badge");
-            HBox title = new HBox(20, label(a.name(), "page-title"), state);
+            String currentStatus = statuses.getOrDefault(a.id(), owned.get() ? "Mounted in background" : configured.get() ? "Ready to mount" : "Needs setup");
+            state.setText(currentStatus);
+            state.getStyleClass().setAll("status-badge", owned.get() ? "status-mounted" : currentStatus.equals("Needs attention") ? "status-warning" : "status-idle");
+            Label titleLabel = label(a.name(), "page-title");
+            HBox title = new HBox(16, titleLabel, state);
             title.setAlignment(Pos.CENTER_LEFT);
+            Label subtitle = label(a.provider() + "  ·  " + (a.remotePath().isBlank() ? "Account root" : a.remotePath()), "page-subtitle");
             Button mount = button("Mount", "primary", () -> mount(a));
             mount.disableProperty().bind(busy.or(owned).or(configured.not()));
             Button unmount = button("Unmount", "secondary", () -> task("Unmounting " + a.name() + "…", () -> {
@@ -267,10 +289,9 @@ public final class CloudMountApp extends Application {
             unmount.disableProperty().bind(busy.or(owned.not()));
             Button open = button("Open folder", "secondary", () -> getHostServices().showDocument(Path.of(mountPath.getText()).toUri().toString()));
             open.disableProperty().bind(busy.or(owned.not()));
-            Button close = button("Close window", "quiet", this::close);
-            close.disableProperty().bind(busy);
-            HBox actions = new HBox(10, mount, unmount, open, close);
-            connectionState.setText(configured.get() ? "Credentials saved for this connection." : "Connect this account before mounting.");
+            HBox actions = new HBox(10, mount, unmount, open);
+            actions.setAlignment(Pos.CENTER_LEFT);
+            connectionState.setText(configured.get() ? "Account connected" : "Connect this account to enable mounting.");
             connectionState.getStyleClass().setAll("muted");
             Button connect = button(a.provider() == Provider.GOOGLE ? "Sign in with Google" : a.provider().oauth() ? "Sign in with " + a.provider() : "Configure connection", "google-signin", () -> configure(a));
             connect.setMaxWidth(Double.MAX_VALUE);
@@ -279,6 +300,9 @@ public final class CloudMountApp extends Application {
             verify.disableProperty().bind(busy.or(owned).or(configured.not()));
             Button remove = button("Remove connection", "quiet", () -> remove(a));
             remove.disableProperty().bind(busy.or(owned));
+            Button deleteLocal = button("Delete local data", "quiet", () -> deleteLocalData(a));
+            deleteLocal.getStyleClass().add("danger-link");
+            deleteLocal.disableProperty().bind(busy.or(owned));
             browserLink.setVisible(false);
             browserLink.setManaged(false);
             browserLink.setOnAction(e -> {
@@ -287,23 +311,24 @@ public final class CloudMountApp extends Application {
             Button cancel = button("Cancel setup", "quiet", setup::cancel);
             cancel.visibleProperty().bind(configuring);
             cancel.managedProperty().bind(configuring);
-            VBox connection = panel("Connection", connectionState, wrap(a.provider() + " · " + (a.remotePath().isBlank() ? "Account root" : a.remotePath()), "help"), connect, browserLink, cancel, new HBox(14, verify, remove));
+            VBox connection = panel("Connection", connectionState, connect, browserLink, cancel, verify, new Separator(), remove, deleteLocal);
             if (a.provider() == Provider.GOOGLE) {
                 Button client = button("Google app setup…", "quiet", this::importGoogleClient);
                 client.disableProperty().bind(busy);
                 connection.getChildren().add(client);
             }
-            VBox left = new VBox(20, connection, settings(a, s));
-            left.setMinWidth(340);
-            left.setPrefWidth(430);
-            VBox right = transfers();
-            right.setMinWidth(290);
-            right.setPrefWidth(360);
-            right.setMaxHeight(Region.USE_PREF_SIZE);
-            HBox columns = new HBox(20, left, right);
-            HBox.setHgrow(left, Priority.ALWAYS);
-            HBox.setHgrow(right, Priority.ALWAYS);
-            details.getChildren().setAll(title, label(a.provider().toString(), "muted"), actions, columns);
+            connection.setMinWidth(260);
+            connection.setPrefWidth(284);
+            connection.setMaxWidth(310);
+            VBox transferPanel = transfers();
+            transferPanel.setMinWidth(360);
+            HBox columns = new HBox(18, transferPanel, connection);
+            columns.setAlignment(Pos.TOP_LEFT);
+            HBox.setHgrow(transferPanel, Priority.ALWAYS);
+            VBox hero = new VBox(8, title, subtitle, actions,
+                    wrap("Closing the window keeps mounts running. Unmount affects only this storage.", "hero-help"));
+            hero.getStyleClass().add("storage-hero");
+            details.getChildren().setAll(hero, columns, settings(a, s));
             accountList.refresh();
         } catch (Exception e) {
             message(e.getMessage(), true);
@@ -353,12 +378,19 @@ public final class CloudMountApp extends Application {
         activity.setEditable(false);
         activity.setWrapText(true);
         activity.setPrefRowCount(6);
-        FlowPane metrics = new FlowPane(24, 16, metric("Speed", speed), metric("Transferred", transferred), metric("Uploads queued", queued), metric("Cache used", cacheUsed));
-        return panel("Transfers", transferState, label("Storage quota", "section-small"), storageLabel, storageBar, metrics, new Separator(), rows, new Separator(), label("Activity · all connections", "section-small"), activity);
+        FlowPane metrics = new FlowPane(28, 18, metric("Speed", speed), metric("Transferred", transferred), metric("Uploads queued", queued), metric("Cache used", cacheUsed));
+        metrics.getStyleClass().add("metric-strip");
+        rows.getStyleClass().setAll("transfer-list");
+        TitledPane logPanel = new TitledPane("Activity log · all connections", activity);
+        logPanel.setExpanded(false);
+        logPanel.getStyleClass().add("log-panel");
+        return panel("Transfer activity", transferState, metrics, new Separator(), label("Current transfers", "section-small"), rows,
+                new Separator(), label("Storage quota", "section-small"), storageLabel, storageBar, logPanel);
     }
 
     private void add() {
         Dialog<CloudAccount> dialog = new Dialog<>();
+        theme(dialog);
         dialog.initOwner(stage);
         dialog.setTitle("Add storage");
         TextField name = new TextField();
@@ -396,6 +428,7 @@ public final class CloudMountApp extends Application {
             return;
         }
         Dialog<Map<String, String>> dialog = new Dialog<>();
+        theme(dialog);
         dialog.initOwner(stage);
         dialog.setTitle("Connect " + a.name());
         Map<String, TextInputControl> inputs = new LinkedHashMap<>();
@@ -461,6 +494,7 @@ public final class CloudMountApp extends Application {
         CompletableFuture<String> answer = new CompletableFuture<>();
         Platform.runLater(() -> {
             Dialog<String> d = new Dialog<>();
+            theme(d);
             d.initOwner(stage);
             d.setTitle("Provider setup · " + q.name());
             TextInputControl text = q.password() ? new PasswordField() : new TextField(q.value());
@@ -516,6 +550,7 @@ public final class CloudMountApp extends Application {
 
     private void remove(CloudAccount a) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Remove '" + a.name() + "' and its saved credentials? Cloud files and local cache will be kept.", ButtonType.CANCEL, ButtonType.OK);
+        theme(confirm);
         confirm.initOwner(stage);
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) task("Removing connection…", () -> {
             accounts.remove(a);
@@ -524,6 +559,26 @@ public final class CloudMountApp extends Application {
             accountList.getItems().remove(a);
             message("Connection removed. Cloud files and cache kept.", false);
         });
+    }
+
+    private void deleteLocalData(CloudAccount a) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        theme(confirm);
+        confirm.initOwner(stage);
+        confirm.setTitle("Delete local connection data");
+        confirm.setHeaderText("Delete local data for '" + a.name() + "'?");
+        confirm.setContentText("This removes the saved connection, credentials, settings, state and its identifiable cache. Any unuploaded files in that cache will be lost. Cloud provider files and the local mount folder are kept. A custom cache folder may retain older cache namespaces.");
+        confirm.getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK);
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK)
+            task("Deleting local data for " + a.name() + "…", () -> {
+                accounts.removeWithLocalData(a);
+                return null;
+            }, v -> {
+                statuses.remove(a.id());
+                quotaTimes.remove(a.id());
+                accountList.getItems().remove(a);
+                message("Local data deleted for " + a.name() + ". Cloud files and mount folder kept.", false);
+            });
     }
 
     private MountSettings draft() {
@@ -596,6 +651,7 @@ public final class CloudMountApp extends Application {
                     Platform.runLater(() -> {
                         if (current(a) && !busy.get()) {
                             state.setText("Mounted in background");
+                            state.getStyleClass().setAll("status-badge", "status-mounted");
                             render(snapshot);
                         }
                         accountList.refresh();
@@ -628,6 +684,7 @@ public final class CloudMountApp extends Application {
                     Platform.runLater(() -> {
                         if (current(a) && !busy.get()) {
                             state.setText("Needs attention");
+                            state.getStyleClass().setAll("status-badge", "status-warning");
                             transferState.setText("Status unavailable; upload completion is unknown.");
                         }
                         accountList.refresh();

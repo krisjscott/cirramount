@@ -33,6 +33,61 @@ class MultiAccountTest {
         assertEquals("legacy",legacy.id());assertEquals(root(),store.paths(legacy));
         assertEquals("legacy-token",Files.readString(root().credentials()));assertEquals("legacy-session",Files.readString(state));
     }
+    @Test void deletingLocalDataRemovesOnlySelectedAccountFilesAndDefaultCache() throws Exception {
+        var store = new AccountStore(root());
+        var first = store.add("Personal", Provider.GOOGLE, "");
+        var second = store.add("Work", Provider.DROPBOX, "");
+        Path firstCache = store.paths(first).cacheDir();
+        Path secondCache = store.paths(second).cacheDir();
+        PrivateFiles.write(firstCache.resolve("old-cache/file"), "pending");
+        PrivateFiles.write(secondCache.resolve("file"), "keep");
+        PrivateFiles.write(store.paths(first).credentials(), "token");
+        PrivateFiles.write(store.paths(first).stateDir().resolve("rclone.log"), "log");
+        PrivateFiles.write(store.paths(first).stateDir().resolve("mount-session.json"), "{}");
+        assertThrows(Exception.class, () -> store.removeWithLocalData(first));
+        assertTrue(Files.exists(firstCache.resolve("old-cache/file")));
+        Files.delete(store.paths(first).stateDir().resolve("mount-session.json"));
+
+        store.removeWithLocalData(first);
+        assertEquals(List.of(second), store.list());
+        assertFalse(Files.exists(store.paths(first).configDir()));
+        assertFalse(Files.exists(store.paths(first).stateDir()));
+        assertFalse(Files.exists(firstCache));
+        assertEquals("keep", Files.readString(secondCache.resolve("file")));
+        assertTrue(Files.exists(store.paths(second).settings()));
+    }
+    @Test void customCacheDeletesOnlyCurrentNamespaceAndKeepsOtherFiles() throws Exception {
+        var store = new AccountStore(root());
+        var account = store.add("Custom", Provider.GOOGLE, "");
+        Path custom = temp.resolve("shared-cache");
+        String id = UUID.randomUUID().toString();
+        new SettingsStore(store.paths(account)).save(settings(temp.resolve("mount"), custom));
+        PrivateFiles.write(store.paths(account).credentials(), "[cloudmount]\ncloudmount_cache_id = " + id + "\n");
+        PrivateFiles.write(custom.resolve(id).resolve("vfs/file"), "cache");
+        PrivateFiles.write(custom.resolve("unrelated/file"), "keep");
+
+        store.removeWithLocalData(account);
+        assertFalse(Files.exists(custom.resolve(id)));
+        assertEquals("keep", Files.readString(custom.resolve("unrelated/file")));
+        assertTrue(store.list().isEmpty());
+    }
+    @Test void legacyCleanupKeepsSharedAppFilesAndOtherAccountCache() throws Exception {
+        var store = new AccountStore(root());
+        var other = store.add("Work", Provider.DROPBOX, "");
+        String id = UUID.randomUUID().toString();
+        PrivateFiles.write(root().credentials(), "[cloudmount]\ncloudmount_cache_id = " + id + "\n");
+        PrivateFiles.write(root().cacheDir().resolve(id).resolve("vfs/file"), "legacy-cache");
+        PrivateFiles.write(root().cacheDir().resolve("accounts").resolve(other.id()).resolve("file"), "other-cache");
+        PrivateFiles.write(root().configDir().resolve("google-oauth.json"), "shared-client");
+        var legacy = store.list().stream().filter(a -> a.id().equals("legacy")).findFirst().orElseThrow();
+
+        store.removeWithLocalData(legacy);
+        assertFalse(Files.exists(root().credentials()));
+        assertFalse(Files.exists(root().cacheDir().resolve(id)));
+        assertEquals("other-cache", Files.readString(root().cacheDir().resolve("accounts").resolve(other.id()).resolve("file")));
+        assertEquals("shared-client", Files.readString(root().configDir().resolve("google-oauth.json")));
+        assertEquals(List.of(other), store.list());
+    }
     @Test void preventsCrossAccountMountAndCacheOverlapIncludingSymlinks() throws Exception {
         var store=new AccountStore(root());var a=store.add("A",Provider.GOOGLE,"");var b=store.add("B",Provider.DROPBOX,"");
         Path other=Files.createDirectories(temp.resolve("other"));
