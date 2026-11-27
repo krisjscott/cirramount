@@ -1,11 +1,11 @@
-# CloudMount
+# CirraMount
 
-Linux desktop cloud mounts built with Java 25, JavaFX and rclone/FUSE. Keep multiple connections mounted together: Google Drive, Amazon S3, S3-compatible storage, Microsoft OneDrive, Dropbox, WebDAV and SFTP.
+CirraMount provides Linux desktop cloud mounts built with Java 25, JavaFX and rclone/FUSE. Keep multiple connections mounted together: Google Drive, Amazon S3, S3-compatible storage, Microsoft OneDrive, Dropbox, WebDAV and SFTP.
 
 ## Run
 
 ```bash
-cd /home/krisjscott/Documents/Program/Java/CloudMount
+cd /home/krisjscott/Documents/Program/Java/CirraMount
 ./run.sh
 ```
 
@@ -17,7 +17,7 @@ CLOUDMOUNT_JAVA_HOME=/usr/lib/jvm/jdk-25.0.2-oracle-x64 ./run.sh
 
 An `Unsupported major.minor version 67.0` error means an older Java runtime is loading JavaFX. IDE project SDK, run configuration and Maven runner must also use JDK 25+. Rebuild changes with `./build.sh`; Maven and internet access are needed for a clean build.
 
-The host needs `/dev/fuse` and `fusermount3` (the distribution's `fuse3` package on Debian/Ubuntu/Mint). Run CloudMount as your normal user.
+The host needs `/dev/fuse` and `fusermount3` (the distribution's `fuse3` package on Debian/Ubuntu/Mint). Run CirraMount as your normal user.
 
 ## Add connections
 
@@ -78,7 +78,7 @@ If a daemon stops unexpectedly, keep its cache and recovery state. Do not kill a
 | `config/cloudmount/google-oauth.json` | Optional shared Google Desktop app client |
 | `config/cloudmount/app.lock` | Single-window lock |
 
-Here `config`, `cache` and `state` mean `XDG_CONFIG_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME`, defaulting to `~/.config`, `~/.cache` and `~/.local/state`. Relative XDG values are ignored. The legacy account retains its original files directly under `cloudmount/` in each directory.
+Here `config`, `cache` and `state` mean `XDG_CONFIG_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME`, defaulting to `~/.config`, `~/.cache` and `~/.local/state`. Relative XDG values are ignored. The legacy account retains its original files directly under `cloudmount/` in each directory. Existing `cloudmount` data paths, environment variables and test properties remain unchanged for compatibility.
 
 Configuration directories use `0700`, files use `0600`, and replacement writes are atomic. **rclone credentials are not encrypted at rest**; password obscuring is not encryption. Keep config and session files private. The app does not change `~/.config/rclone/rclone.conf`. Keys/passwords are sent to setup through authenticated loopback RC, never as process arguments. Mount RC uses a generated password; process PID/start time and FUSE device identity are verified before stopping a saved engine.
 
@@ -88,7 +88,7 @@ Configuration directories use `0700`, files use `0600`, and replacement writes a
 
 ## Browser consent page
 
-All OAuth providers use the bundled CloudMount success/error response page through rclone's configuration template. It has no external assets, escapes provider error text, removes callback query parameters from browser history and sets a no-referrer policy. The response confirms receipt of the callback; the desktop app still finishes verification before offering the mount. Previously opened response tabs are not updated.
+All OAuth providers use the bundled success/error response page through rclone's configuration template. It has no external assets, escapes provider error text, removes callback query parameters from browser history and sets a no-referrer policy. The response confirms receipt of the callback; the desktop app still finishes verification before offering the mount. Previously opened response tabs are not updated.
 
 ## File-manager storage bars
 
@@ -106,9 +106,9 @@ Tests use synthetic credentials, local HTTP fixtures and temporary local FUSE ba
 An isolated UI preview must set all three XDG paths:
 
 ```bash
-xvfb-run -a env XDG_CONFIG_HOME=/tmp/cloudmount-preview/config \
-  XDG_CACHE_HOME=/tmp/cloudmount-preview/cache XDG_STATE_HOME=/tmp/cloudmount-preview/state \
-  ./run.sh --smoke-output=/tmp/cloudmount-preview.png
+xvfb-run -a env XDG_CONFIG_HOME=/tmp/cirramount-preview/config \
+  XDG_CACHE_HOME=/tmp/cirramount-preview/cache XDG_STATE_HOME=/tmp/cirramount-preview/state \
+  ./run.sh --smoke-output=/tmp/cirramount-preview.png
 ```
 
 ## Engine provenance
